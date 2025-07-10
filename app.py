@@ -1,11 +1,14 @@
 import json
 from collections import defaultdict
-from flask import Flask, render_template, request, redirect
+
+from flask import Flask, jsonify, request, send_from_directory, redirect
+from flask_cors import CORS
+import os
 
 DATA_FILE = 'data/schedule.json'
 
-app = Flask(__name__)
-
+app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
+CORS(app)
 
 def load_schedule():
     with open(DATA_FILE, encoding='utf-8') as f:
@@ -46,25 +49,42 @@ def compute_table(schedule):
     return sorted_table
 
 
-@app.route('/')
-def index():
+
+@app.route('/api/schedule')
+def get_schedule():
     schedule = load_schedule()
-    table = compute_table(schedule)
-    return render_template('index.html', schedule=schedule, table=table)
+    return jsonify(schedule)
 
 
-@app.route('/update/<int:match_id>', methods=['POST'])
+@app.route('/api/table')
+def get_table():
+    schedule = load_schedule()
+    table = [dict(team=t, **stats) for t, stats in compute_table(schedule)]
+    return jsonify(table)
+
+
+@app.route('/api/update/<int:match_id>', methods=['POST'])
 def update_match(match_id: int):
     schedule = load_schedule()
+    data = request.get_json(force=True)
     try:
-        hg = int(request.form['home_goals'])
-        ag = int(request.form['away_goals'])
-    except (KeyError, ValueError):
-        return redirect('/')
+        hg = int(data.get('home_goals'))
+        ag = int(data.get('away_goals'))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Invalid data'}), 400
     if 0 <= match_id < len(schedule):
         schedule[match_id]['score'] = [hg, ag]
         save_schedule(schedule)
-    return redirect('/')
+    return jsonify({'success': True})
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    root = app.static_folder
+    if path != "" and os.path.exists(os.path.join(root, path)):
+        return send_from_directory(root, path)
+    return send_from_directory(root, 'index.html')
 
 
 if __name__ == '__main__':
