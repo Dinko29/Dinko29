@@ -2,6 +2,7 @@
 
 Ovaj projekt sadrži Flask API i React korisničko sučelje za prikaz ljestvice i rasporeda SuperSport HNL lige. Rezultate je moguće unositi ručno, a tablica se nakon svakog unosa automatski ažurira.
 
+
 ## Postavljanje
 
 1. Instalirajte ovisnosti:

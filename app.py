@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+
 from flask import Flask, jsonify, request, send_from_directory, redirect
 from flask_cors import CORS
 import os
@@ -8,7 +9,6 @@ DATA_FILE = 'data/schedule.json'
 
 app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)
-
 
 def load_schedule():
     with open(DATA_FILE, encoding='utf-8') as f:
@@ -47,6 +47,7 @@ def compute_table(schedule):
             table[away]['Pts'] += 1
     sorted_table = sorted(table.items(), key=lambda i: (i[1]['Pts'], i[1]['GF']-i[1]['GA'], i[1]['GF']), reverse=True)
     return sorted_table
+
 
 
 @app.route('/api/schedule')
