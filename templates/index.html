@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <title>SSHNL Ljestvica i Raspored</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 4px; text-align: center; }
+    th { background: #eee; }
+    form { margin: 0; }
+  </style>
+</head>
+<body>
+  <h1>SSHNL Ljestvica</h1>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Momčad</th>
+      <th>P</th>
+      <th>W</th>
+      <th>D</th>
+      <th>L</th>
+      <th>GF</th>
+      <th>GA</th>
+      <th>Pts</th>
+    </tr>
+    {% for team, stats in table %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ team }}</td>
+      <td>{{ stats.P }}</td>
+      <td>{{ stats.W }}</td>
+      <td>{{ stats.D }}</td>
+      <td>{{ stats.L }}</td>
+      <td>{{ stats.GF }}</td>
+      <td>{{ stats.GA }}</td>
+      <td>{{ stats.Pts }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Raspored</h2>
+  <table>
+    <tr>
+      <th>Kolo</th>
+      <th>Domacin</th>
+      <th>Gost</th>
+      <th>Datum</th>
+      <th>Rezultat</th>
+    </tr>
+    {% for match in schedule %}
+    <tr>
+      <td>{{ match.round }}</td>
+      <td>{{ match.home }}</td>
+      <td>{{ match.away }}</td>
+      <td>{{ match.date }} {{ match.time }}</td>
+      <td>
+        <form action="/update/{{ loop.index0 }}" method="post">
+          <input type="number" name="home_goals" value="{{ match.score[0] if match.score }}" min="0" style="width:40px;">
+          :
+          <input type="number" name="away_goals" value="{{ match.score[1] if match.score }}" min="0" style="width:40px;">
+          <input type="submit" value="Spremi">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
